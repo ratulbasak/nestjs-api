@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  mongo:
+  mongodb:
     image: mongo:4.2.5
     container_name: mongodb
     restart: unless-stopped
@@ -14,7 +14,7 @@ services:
       dockerfile: Dockerfile
     image: nestjs_api
     container_name: nestjs_api
-    restart: unless-stopped
+    restart: always
     env_file:
         - .env
     ports:
@@ -22,5 +22,5 @@ services:
     command: bash -c "npm run start:dev"
     volumes:
         - ./src:/app/src
-    # depends_on:
-    #   - mongo
+    depends_on:
+      - mongodb
