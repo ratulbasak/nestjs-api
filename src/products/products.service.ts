@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import {  Product } from './products.model';
+import { Product } from '../model/products.model';
 
 @Injectable()
 export class ProductsService {
@@ -10,20 +10,27 @@ export class ProductsService {
 
     constructor(@InjectModel('Product') private readonly productModel: Model<Product>,) {}
 
-    async insertProduct(title: string, desc: string, price: number) {
-        const newProduct = new this.productModel({
-            title: title, 
-            description: desc, 
-            price: price
-        });
+    async insertProduct(createProductDto) {
+        const newProduct = new this.productModel(createProductDto);
         const result = await newProduct.save();
         console.log(result);
         return result;
     }
 
-    async getProducts() {
-        const products = await this.productModel.find().exec();
-        console.log(products);
+    async getProducts(req): Promise<Product> {
+        let products
+        products = await this.productModel.find().exec();
+        const q_params = req.query['key'].split(',');
+        if (!q_params){
+            for (const param of q_params) {
+                console.log(param);
+            }
+        }
+        // if (!q_params){
+        //     for (const param of q_params) {
+        //         console.log(param);
+        //     }
+        // }
         return products;
 
     }
@@ -31,7 +38,7 @@ export class ProductsService {
     async getSingleProduct(productId: string) {
         const product = await this.findProduct(productId);
         console.log(product);
-        return {id: product.id, title: product.title, description: product.description, price: product.price};
+        return product;
     }
 
     async updateProduct(productId: string, title: string, desc: string, price: number) {
